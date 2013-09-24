@@ -1,0 +1,5 @@
+#ifdef _MSC_VER
+1 ICON "../../misc/tremfusion.ico"
+#else
+1 ICON "misc/tremfusion.ico"
+#endif

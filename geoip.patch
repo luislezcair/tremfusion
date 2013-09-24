@@ -1,0 +1,209 @@
+diff -r 1c674b2e1981 Makefile
+--- a/Makefile	Sun Nov 22 15:22:55 2009 +0000
++++ b/Makefile	Sat Dec 18 19:57:19 2010 -0300
+@@ -143,6 +143,10 @@
+   USE_INTERNAL_ZLIB=1
+ endif
+ 
++ifndef USE_GEOIP
++  USE_GEOIP=1
++endif
++
+ ifndef USE_LOCAL_HEADERS
+   USE_LOCAL_HEADERS=1
+ endif
+@@ -199,6 +203,7 @@
+ PDCDIR=$(MOUNT_DIR)/pdcurses
+ LIBSDIR=$(MOUNT_DIR)/libs
+ MASTERDIR=$(MOUNT_DIR)/master
++GEOIPDIR=$(MOUNT_DIR)/GeoIP
+ TEMPDIR=/tmp
+ 
+ bin_path=$(shell which $(1) 2> /dev/null)
+@@ -1116,6 +1121,10 @@
+   LDFLAGS += -lz
+ endif
+ 
++ifeq ($(USE_GEOIP),1)
++  BASE_CFLAGS += -DUSEGEOIP
++endif
++
+ ifdef DEFAULT_BASEDIR
+   BASE_CFLAGS += -DDEFAULT_BASEDIR=\\\"$(DEFAULT_BASEDIR)\\\"
+ endif
+@@ -1644,6 +1653,10 @@
+   $(B)/client/zutil.o
+ endif
+ 
++ifeq ($(USE_GEOIP),1)
++  Q3OBJ += $(B)/client/GeoIP.o
++endif
++
+ ifeq ($(USE_CURSES),1)
+   Q3OBJ_ += $(B)/client/con_curses.o
+ endif
+@@ -1834,6 +1847,10 @@
+   endif
+ endif
+ 
++ifeq ($(USE_GEOIP),1)
++  Q3DOBJ += $(B)/ded/GeoIP.o
++endif
++
+ ifeq ($(PLATFORM),mingw32)
+   Q3DOBJ += \
+     $(B)/ded/win_resource.o \
+@@ -1928,6 +1945,9 @@
+ $(B)/client/%.o: $(NDIR)/%.c
+ 	$(DO_CC)
+ 
++$(B)/client/%.o: $(GEOIPDIR)/%.c
++	$(DO_CC)
++
+ 
+ $(B)/clienttty/%.o: $(ASMDIR)/%.s
+ 	$(DO_AS)
+@@ -1978,6 +1998,9 @@
+ $(B)/ded/%.o: $(NDIR)/%.c
+ 	$(DO_DED_CC)
+ 
++$(B)/ded/%.o: $(GEOIPDIR)/%.c
++	$(DO_DED_CC)
++
+ # Extra dependencies to ensure the SVN version is incorporated
+ ifeq ($(USE_SVN),1)
+   $(B)/client/cl_console.o : .svn/entries
+diff -r 1c674b2e1981 src/game/g_public.h
+--- a/src/game/g_public.h	Sun Nov 22 15:22:55 2009 +0000
++++ b/src/game/g_public.h	Sat Dec 18 19:57:19 2010 -0300
+@@ -221,6 +221,7 @@
+   G_PARSE_SOURCE_FILE_AND_LINE,
+ 
+   G_SEND_GAMESTAT,
++  G_GEOIP_GETCOUNTRYNAME,
+   G_DEMO_COMMAND
+ } gameImport_t;
+ 
+diff -r 1c674b2e1981 src/server/server.h
+--- a/src/server/server.h	Sun Nov 22 15:22:55 2009 +0000
++++ b/src/server/server.h	Sat Dec 18 19:57:19 2010 -0300
+@@ -26,6 +26,7 @@
+ #include "../qcommon/qcommon.h"
+ #include "../game/g_public.h"
+ #include "../game/bg_public.h"
++#include "../GeoIP/GeoIP.h"
+ 
+ //=============================================================================
+ 
+@@ -92,6 +93,8 @@
+ 	demoState_t		demoState;
+ 	char			demoName[MAX_QPATH];
+ 
++        GeoIP*          geoipDatabase;
++
+ 	// previous frame for delta compression
+ 	sharedEntity_t	demoEntities[MAX_GENTITIES];
+ 	playerState_t	demoPlayerStates[MAX_CLIENTS];
+@@ -279,6 +282,7 @@
+ extern	cvar_t	*sv_autoDemo;
+ extern	cvar_t	*sv_pure;
+ extern	cvar_t	*sv_downloadRate;
++extern  cvar_t  *sv_GeoIPDatabase;
+ 
+ #ifdef USE_VOIP
+ extern	cvar_t	*sv_voip;
+diff -r 1c674b2e1981 src/server/sv_game.c
+--- a/src/server/sv_game.c	Sun Nov 22 15:22:55 2009 +0000
++++ b/src/server/sv_game.c	Sat Dec 18 19:57:19 2010 -0300
+@@ -287,6 +287,32 @@
+ 	*cmd = svs.clients[clientNum].lastUsercmd;
+ }
+ 
++/*
++===============
++SV_GeoIP_GetCountryName
++
++===============
++*/
++int SV_GeoIP_GetCountryName( const char* ip, char* dest )
++{
++    const char* buf;
++
++    if( !sv_GeoIPDatabase->string[ 0 ] )
++        return 0;
++
++    if( sv.geoipDatabase == NULL )
++        return 0;
++
++    buf = GeoIP_country_name_by_addr( sv.geoipDatabase, ip );
++
++    if( buf == NULL )
++        return 0;
++
++    strcpy( dest, buf );
++
++    return 1;
++}
++
+ //==============================================
+ 
+ static int	FloatAsInt( float f ) {
+@@ -453,13 +479,16 @@
+ 		SV_MasterGameStat( VMA(1) );
+ 		return 0;
+ 
++        case G_GEOIP_GETCOUNTRYNAME:
++                return SV_GeoIP_GetCountryName( VMA(1), VMA(2) );
++
+ 	case G_DEMO_COMMAND:
+ 		if ( sv.demoState == DS_RECORDING )
+ 		{ 
+@@ -594,6 +623,13 @@
+ 		Com_Error( ERR_FATAL, "VM_Create on game failed" );
+ 	}
+ 
++        //Open the GeoIP database
++        sv.geoipDatabase = GeoIP_open( sv_GeoIPDatabase->string, GEOIP_STANDARD );
++        if( sv.geoipDatabase == NULL )
++            Com_Printf( "WARNING: GeoIP database %s does not exists!\n", sv_GeoIPDatabase->string );
++        else
++            Com_Printf( "Using GeoIP database %s\n", sv_GeoIPDatabase->string );
++
+ 	SV_InitGameVM( qfalse );
+ }
+ 
+diff -r 1c674b2e1981 src/server/sv_init.c
+--- a/src/server/sv_init.c	Sun Nov 22 15:22:55 2009 +0000
++++ b/src/server/sv_init.c	Sat Dec 18 19:57:19 2010 -0300
+@@ -645,6 +645,7 @@
+ 	sv_dequeuePeriod = Cvar_Get ("sv_dequeuePeriod", "500", CVAR_ARCHIVE );
+ 	sv_demoState = Cvar_Get ("sv_demoState", "0", CVAR_ROM );
+ 	sv_autoDemo = Cvar_Get ("sv_autoDemo", "0", CVAR_ARCHIVE );
++        sv_GeoIPDatabase = Cvar_Get( "sv_GeoIPDatabase", "GeoIP.dat", CVAR_ARCHIVE );
+ }
+ 
+ 
+@@ -722,6 +723,12 @@
+ 	Cvar_Set( "sv_running", "0" );
+ 	Cvar_Set("ui_singlePlayerActive", "0");
+ 
++        //Close the database
++        if( sv.geoipDatabase != NULL ) {
++            Com_Printf( "Closing GeoIP database\n" );
++            GeoIP_delete( sv.geoipDatabase );
++        }
++
+ 	Com_Printf( "---------------------------\n" );
+ 
+ 	// disconnect any local clients
+diff -r 1c674b2e1981 src/server/sv_main.c
+--- a/src/server/sv_main.c	Sun Nov 22 15:22:55 2009 +0000
++++ b/src/server/sv_main.c	Sat Dec 18 19:57:19 2010 -0300
+@@ -60,6 +60,7 @@
+ cvar_t	*sv_autoDemo;
+ cvar_t	*sv_pure;
+ cvar_t	*sv_downloadRate;
++cvar_t  *sv_GeoIPDatabase;
+ 
+ /*
+ =============================================================================
