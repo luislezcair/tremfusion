@@ -337,7 +337,6 @@ void SV_DemoStartPlayback(void)
 	msg_t msg;
 	int r, i, clients;
 	char *s;
-        static int restarted = 0;
 
 	MSG_Init(&msg, buf, sizeof(buf));
 
@@ -400,19 +399,15 @@ void SV_DemoStartPlayback(void)
 		Cvar_SetValue("sv_democlients", clients);
 		Cvar_SetValue("sv_maxclients", clients + count);
 	}
-//	if (!com_sv_running->integer || strcmp(sv_mapname->string, s) ||
-//	    !Cvar_VariableIntegerValue("sv_cheats") || r < sv.time ||
-//	    sv_maxclients->modified )// || sv_democlients->modified)
-//	{
+    if (!com_sv_running->integer || strcmp(sv_mapname->string, s) ||
+        !Cvar_VariableIntegerValue("sv_cheats") || r < sv.time ||
+        sv_maxclients->modified || sv_democlients->modified)
+    {
 		// Change to the right map and start the demo with a g_warmup second delay
-        if( !restarted )
-        {
 		Cbuf_AddText(va("devmap %s\ndelay %d %s\n", s, Cvar_VariableIntegerValue("g_warmup") * 1000, Cmd_Cmd()));
-                restarted = 1;
-        }
-//		SV_DemoStopPlayback();
-//		return;
-//	}
+        SV_DemoStopPlayback();
+        return;
+    }
 
 	// Initialize our stuff
 	Com_Memset(sv.demoEntities, 0, sizeof(sv.demoEntities));
