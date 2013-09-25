@@ -91,7 +91,7 @@ send "\b \b"
 static void CON_Back( void )
 {
 	char key;
-	size_t size;
+    size_t UNUSED_VAR size;
 
 	key = '\b';
 	size = write(STDOUT_FILENO, &key, 1);
@@ -149,7 +149,7 @@ static void CON_Show( void )
 		ttycon_hide--;
 		if (ttycon_hide == 0)
 		{
-			size_t size;
+            size_t UNUSED_VAR size;
 			size = write( STDOUT_FILENO, "]", 1 );
 			if (TTY_con.cursor)
 			{
@@ -249,8 +249,7 @@ void CON_Init( void )
 	characters  EOF,  EOL,  EOL2, ERASE, KILL, REPRINT,
 	STATUS, and WERASE, and buffers by lines.
 	ISIG: when any of the characters  INTR,  QUIT,  SUSP,  or
-	DSUSP are received, generate the corresponding sig­
-	nal
+	DSUSP are received, generate the corresponding signal
 	*/
 	tc.c_lflag &= ~(ECHO | ICANON);
 
@@ -276,7 +275,7 @@ char *CON_Input( void )
 	static char text[256];
 	int avail;
 	char key;
-	size_t size;
+    size_t UNUSED_VAR size;
 
 	if(ttycon_on)
 	{

@@ -27,6 +27,12 @@ static geoipv6_t IPV6_NULL;
 #include <sys/mman.h>
 #endif /* !defined(_WIN32) */ 
 
+#ifdef __GNUC__
+#define UNUSED_VAR __attribute__((unused))
+#else
+#define UNUSED_VAR
+#endif
+
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -343,7 +349,7 @@ void _setup_segments(GeoIP * gi) {
 	int i, j;
 	unsigned char delim[3];
 	unsigned char buf[SEGMENT_RECORD_LENGTH];
-	size_t silence;
+    size_t UNUSED_VAR silence;
 
 	gi->databaseSegments = NULL;
 
@@ -352,9 +358,9 @@ void _setup_segments(GeoIP * gi) {
 	gi->record_length = STANDARD_RECORD_LENGTH;
 	fseek(gi->GeoIPDatabase, -3l, SEEK_END);
 	for (i = 0; i < STRUCTURE_INFO_MAX_SIZE; i++) {
-		silence = fread(delim, 1, 3, gi->GeoIPDatabase);
+        silence = fread(delim, 1, 3, gi->GeoIPDatabase);
 		if (delim[0] == 255 && delim[1] == 255 && delim[2] == 255) {
-			silence = fread(&gi->databaseType, 1, 1, gi->GeoIPDatabase);
+            silence = fread(&gi->databaseType, 1, 1, gi->GeoIPDatabase);
 			if (gi->databaseType >= 106) {
 				/* backwards compatibility with databases from April 2003 and earlier */
 				gi->databaseType -= 105;
@@ -376,7 +382,7 @@ void _setup_segments(GeoIP * gi) {
 				/* City/Org Editions have two segments, read offset of second segment */
 				gi->databaseSegments = malloc(sizeof(int));
 				gi->databaseSegments[0] = 0;
-				silence = fread(buf, SEGMENT_RECORD_LENGTH, 1, gi->GeoIPDatabase);
+                silence = fread(buf, SEGMENT_RECORD_LENGTH, 1, gi->GeoIPDatabase);
 				for (j = 0; j < SEGMENT_RECORD_LENGTH; j++) {
 					gi->databaseSegments[0] += (buf[j] << (j * 8));
 				}
@@ -567,7 +573,7 @@ unsigned int _GeoIP_seek_record_v6 (GeoIP *gi, geoipv6_t ipnum) {
 
        const unsigned char * p;
        int j;
-       size_t silence;
+       size_t UNUSED_VAR silence;
 
        _check_mtime(gi);
        for (depth = 127; depth >= 0; depth--) {
@@ -651,14 +657,14 @@ unsigned int _GeoIP_seek_record (GeoIP *gi, unsigned long ipnum) {
 
 	const unsigned char * p;
 	int j;
-	size_t silence;
+    size_t UNUSED_VAR silence;
 
 	_check_mtime(gi);
 	for (depth = 31; depth >= 0; depth--) {
 		if (gi->cache == NULL && gi->index_cache == NULL) {
 			/* read from disk */
 			fseek(gi->GeoIPDatabase, (long)gi->record_length * 2 * offset, SEEK_SET);
-			silence = fread(stack_buffer,gi->record_length,2,gi->GeoIPDatabase);
+            silence = fread(stack_buffer,gi->record_length,2,gi->GeoIPDatabase);
 		} else if (gi->index_cache == NULL) {
 			/* simply point to record in memory */
 			buf = gi->cache + (long)gi->record_length * 2 *offset;
@@ -1155,7 +1161,7 @@ char *GeoIP_database_info (GeoIP* gi) {
 	unsigned char buf[3];
 	char *retval;
 	int hasStructureInfo = 0;
-	size_t silence;
+    size_t UNUSED_VAR silence;
 
 	if(gi == NULL)
 		return NULL;
@@ -1165,7 +1171,7 @@ char *GeoIP_database_info (GeoIP* gi) {
 
 	/* first get past the database structure information */
 	for (i = 0; i < STRUCTURE_INFO_MAX_SIZE; i++) {
-		silence = fread(buf, 1, 3, gi->GeoIPDatabase);
+        silence = fread(buf, 1, 3, gi->GeoIPDatabase);
 		if (buf[0] == 255 && buf[1] == 255 && buf[2] == 255) {
 			hasStructureInfo = 1;
 			break;
@@ -1180,13 +1186,13 @@ char *GeoIP_database_info (GeoIP* gi) {
 	}
 
 	for (i = 0; i < DATABASE_INFO_MAX_SIZE; i++) {
-		silence = fread(buf, 1, 3, gi->GeoIPDatabase);
+        silence = fread(buf, 1, 3, gi->GeoIPDatabase);
 		if (buf[0] == 0 && buf[1] == 0 && buf[2] == 0) {
 			retval = malloc(sizeof(char) * (i+1));
 			if (retval == NULL) {
 				return NULL;
 			}
-			silence = fread(retval, 1, i, gi->GeoIPDatabase);
+            silence = fread(retval, 1, i, gi->GeoIPDatabase);
 			retval[i] = '\0';
 			return retval;
 		}
@@ -1399,7 +1405,7 @@ char *_get_name (GeoIP* gi, unsigned long ipnum) {
 	char * org_buf, * buf_pointer;
 	int record_pointer;
 	size_t len;
-	size_t silence;
+    size_t UNUSED_VAR silence;
 
 	if (gi->databaseType != GEOIP_ORG_EDITION &&
 			gi->databaseType != GEOIP_ISP_EDITION &&
@@ -1416,7 +1422,7 @@ char *_get_name (GeoIP* gi, unsigned long ipnum) {
 
 	if (gi->cache == NULL) {
 		fseek(gi->GeoIPDatabase, record_pointer, SEEK_SET);
-		silence = fread(buf, sizeof(char), MAX_ORG_RECORD_LENGTH, gi->GeoIPDatabase);
+        silence = fread(buf, sizeof(char), MAX_ORG_RECORD_LENGTH, gi->GeoIPDatabase);
 		len = sizeof(char) * (strlen(buf)+1);
 		org_buf = malloc(len);
 		strncpy(org_buf, buf, len);
@@ -1435,7 +1441,7 @@ char *_get_name_v6 (GeoIP* gi, geoipv6_t ipnum) {
   char * org_buf, * buf_pointer;
   int record_pointer;
   size_t len;
-  size_t silence;
+  size_t UNUSED_VAR silence;
 
   if (gi->databaseType != GEOIP_ORG_EDITION &&
       gi->databaseType != GEOIP_ISP_EDITION &&

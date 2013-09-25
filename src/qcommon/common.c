@@ -916,7 +916,7 @@ void *Z_TagMallocDebug( int size, int tag, char *label, char *file, int line ) {
 #else
 void *Z_TagMalloc( int size, int tag ) {
 #endif
-	int		extra, allocSize;
+    int		extra;
 	memblock_t	*start, *rover, *new, *base;
 	memzone_t *zone;
 
@@ -931,7 +931,6 @@ void *Z_TagMalloc( int size, int tag ) {
 		zone = mainzone;
 	}
 
-	allocSize = size;
 	//
 	// scan through the block list looking for the first free block
 	// of sufficient size
@@ -2774,19 +2773,14 @@ Com_Frame
 */
 void Com_Frame( void ) {
 
-	int		msec, minMsec;
+    int		msec, minMsec;
 	static int	lastTime;
-	int key;
  
-	int		timeBeforeFirstEvents;
-	int           timeBeforeServer;
-	int           timeBeforeEvents;
-	int           timeBeforeClient;
-	int           timeAfter;
-  
-
-
-
+    int     timeBeforeFirstEvents;
+    int     timeBeforeServer;
+    int     timeBeforeEvents;
+    int     timeBeforeClient;
+    int     timeAfter;
 
 	if ( setjmp (abortframe) ) {
 		return;			// an ERR_DROP was thrown
@@ -2797,10 +2791,6 @@ void Com_Frame( void ) {
 	timeBeforeEvents =0;
 	timeBeforeClient = 0;
 	timeAfter = 0;
-
-
-	// old net chan encryption key
-	key = 0x87243987;
 
 	//
 	// main event loop
@@ -2947,9 +2937,6 @@ void Com_Frame( void ) {
 		c_patch_traces = 0;
 		c_pointcontents = 0;
 	}
-
-	// old net chan encryption key
-	key = lastTime * 0x87243987;
 
 	com_frameNumber++;
 }

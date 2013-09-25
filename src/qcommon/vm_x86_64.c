@@ -815,7 +815,6 @@ static char* memData;
 #endif
 
 int	VM_CallCompiled( vm_t *vm, int *args ) {
-	int		programCounter;
 	int		programStack;
 	int		stackOnEntry;
 	byte	*image;
@@ -825,12 +824,8 @@ int	VM_CallCompiled( vm_t *vm, int *args ) {
 
 	currentVM = vm;
 
-//	Com_Printf("entering %s level %d, call %d, arg1 = 0x%x\n", vm->name, vm->callLevel, args[0], args[1]);
-
 	// interpret the code
 	vm->currentlyInterpreting = qtrue;
-
-//	callMask = vm->dataMask;
 
 	// we might be called recursively, so this might not be the very top
 	programStack = vm->programStack;
@@ -841,8 +836,6 @@ int	VM_CallCompiled( vm_t *vm, int *args ) {
 #ifdef DEBUG_VM
 	memData = (char*)image;
 #endif
-
-	programCounter = 0;
 
 	programStack -= 48;
 
@@ -885,7 +878,6 @@ int	VM_CallCompiled( vm_t *vm, int *args ) {
 		Com_Error( ERR_DROP, "programStack corrupted in compiled code\n" );
 	}
 
-//	Com_Printf("exiting %s level %d\n", vm->name, vm->callLevel);
 	vm->programStack = stackOnEntry;
 
 	return *(int *)opStack;

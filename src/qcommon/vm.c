@@ -226,7 +226,6 @@ VM_LoadSymbols
 ===============
 */
 void VM_LoadSymbols( vm_t *vm ) {
-	int		len;
 	union {
 		char	*c;
 		void	*v;
@@ -248,7 +247,7 @@ void VM_LoadSymbols( vm_t *vm ) {
 
 	COM_StripExtension(vm->name, name, sizeof(name));
 	Com_sprintf( symbols, sizeof( symbols ), "vm/%s.map", name );
-	len = FS_ReadFile( symbols, &mapfile.v );
+    FS_ReadFile( symbols, &mapfile.v );
 	if ( !mapfile.c ) {
 		Com_Printf( "Couldn't load symbol file: %s\n", symbols );
 		return;
@@ -373,7 +372,6 @@ Load a .qvm file
 =================
 */
 vmHeader_t *VM_LoadQVM( vm_t *vm, qboolean alloc ) {
-	int					length;
 	int					dataLength;
 	int					i;
 	char				filename[MAX_QPATH];
@@ -385,7 +383,7 @@ vmHeader_t *VM_LoadQVM( vm_t *vm, qboolean alloc ) {
 	// load the image
 	Com_sprintf( filename, sizeof(filename), "vm/%s.qvm", vm->name );
 	Com_Printf( "Loading vm file %s...\n", filename );
-	length = FS_ReadFile( filename, &header.v );
+    FS_ReadFile( filename, &header.v );
 	if ( !header.h ) {
 		Com_Printf( "Failed.\n" );
 		VM_Free( vm );

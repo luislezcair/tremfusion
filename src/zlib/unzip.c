@@ -206,7 +206,7 @@ local int unzlocal_getShort (pzlib_filefunc_def,filestream,pX)
     uLong *pX;
 {
     uLong x ;
-    int i;
+    int i = 0;
     int err;
 
     err = unzlocal_getByte(pzlib_filefunc_def,filestream,&i);
@@ -234,7 +234,7 @@ local int unzlocal_getLong (pzlib_filefunc_def,filestream,pX)
     uLong *pX;
 {
     uLong x ;
-    int i;
+    int i = 0;
     int err;
 
     err = unzlocal_getByte(pzlib_filefunc_def,filestream,&i);
@@ -1360,12 +1360,12 @@ extern int ZEXPORT unzReadCurrentFile  (file, buf, len)
         else
         {
             uLong uTotalOutBefore,uTotalOutAfter;
-            const Bytef *bufBefore;
+            //const Bytef *bufBefore;
             uLong uOutThis;
             int flush=Z_SYNC_FLUSH;
 
             uTotalOutBefore = pfile_in_zip_read_info->stream.total_out;
-            bufBefore = pfile_in_zip_read_info->stream.next_out;
+            //bufBefore = pfile_in_zip_read_info->stream.next_out;
 
             /*
             if ((pfile_in_zip_read_info->rest_read_uncompressed ==

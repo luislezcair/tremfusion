@@ -1774,7 +1774,7 @@ static void CM_TraceThroughSphere_sse( traceWork_t *tw, v4f origin, float radius
 #endif
 static void CM_TraceThroughSphere( traceWork_t *tw, vec3_t origin, float radius, vec3_t start, vec3_t end ) {
 	float l1, l2, length, scale, fraction;
-	float a, b, c, d, sqrtd;
+    float b, c, d, sqrtd;
 	vec3_t v1, dir, intersection;
 
 	// if inside the sphere
@@ -1810,7 +1810,7 @@ static void CM_TraceThroughSphere( traceWork_t *tw, vec3_t origin, float radius,
 	//
 	VectorSubtract(start, origin, v1);
 	// dir is normalized so a = 1
-	a = 1.0f;//dir[0] * dir[0] + dir[1] * dir[1] + dir[2] * dir[2];
+
 	b = 2.0f * (dir[0] * v1[0] + dir[1] * v1[1] + dir[2] * v1[2]);
 	c = v1[0] * v1[0] + v1[1] * v1[1] + v1[2] * v1[2] - (radius+RADIUS_EPSILON) * (radius+RADIUS_EPSILON);
 
@@ -1964,7 +1964,7 @@ static void CM_TraceThroughVerticalCylinder_sse( traceWork_t *tw, v4f origin, fl
 #endif
 static void CM_TraceThroughVerticalCylinder( traceWork_t *tw, vec3_t origin, float radius, float halfheight, vec3_t start, vec3_t end) {
 	float length, scale, fraction, l1, l2;
-	float a, b, c, d, sqrtd;
+    float b, c, d, sqrtd;
 	vec3_t v1, dir, start2d, end2d, org2d, intersection;
 
 	// 2d coordinates
@@ -2010,7 +2010,7 @@ static void CM_TraceThroughVerticalCylinder( traceWork_t *tw, vec3_t origin, flo
 	//
 	VectorSubtract(start, origin, v1);
 	// dir is normalized so we can use a = 1
-	a = 1.0f;// * (dir[0] * dir[0] + dir[1] * dir[1]);
+    //a = 1.0f;// * (dir[0] * dir[0] + dir[1] * dir[1]);
 	b = 2.0f * (v1[0] * dir[0] + v1[1] * dir[1]);
 	c = v1[0] * v1[0] + v1[1] * v1[1] - (radius+RADIUS_EPSILON) * (radius+RADIUS_EPSILON);
 
