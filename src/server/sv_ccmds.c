@@ -162,7 +162,6 @@ static void SV_MapRestart_f( void ) {
 
 	// check for changes in variables that can't just be restarted
 	// check for maxclients and democlients change
-        /*
 	if ( sv_maxclients->modified || sv_democlients->modified ) {
 		char	mapname[MAX_QPATH];
 
@@ -172,7 +171,7 @@ static void SV_MapRestart_f( void ) {
 
 		SV_SpawnServer( mapname, qfalse );
 		return;
-        }*/
+    }
 
 	// stop any demos
 	if (sv.demoState == DS_RECORDING)
@@ -407,12 +406,12 @@ static void SV_Demo_Play_f( void ) {
 		Com_Printf("A demo is already being recorded/played.\n");
 		return;
 	}
-/*
-        if (sv_democlients->integer <= 0) {
-		Com_Printf("You need to set sv_democlients to a value greater than 0.\n");
-		return;
-        }*/
-	
+
+    if (sv_democlients->integer <= 0) {
+        Com_Printf("You need to set sv_democlients to a value greater than 0.\n");
+        return;
+    }
+
 	// check for an extension .svdm_?? (?? is protocol)
 	arg = Cmd_Argv(1);
 	if (!strcmp(arg + strlen(arg) - 6, va(".svdm_%d", PROTOCOL_VERSION)))

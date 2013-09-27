@@ -291,7 +291,7 @@ void SV_DemoStartRecord(void)
 	// Write map name
 	MSG_WriteString(&msg, sv_mapname->string);
 	// Write number of clients (sv_maxclients < MAX_CLIENTS or else we can't playback)
-	MSG_WriteBits(&msg, sv_maxclients->integer, CLIENTNUM_BITS);
+    MSG_WriteBits(&msg, sv_maxclients->integer, CLIENTNUM_BITS);
 	SV_DemoWriteMessage(&msg);
 
 	// Write entities and players
@@ -403,8 +403,8 @@ void SV_DemoStartPlayback(void)
         !Cvar_VariableIntegerValue("sv_cheats") || r < sv.time ||
         sv_maxclients->modified || sv_democlients->modified)
     {
-		// Change to the right map and start the demo with a g_warmup second delay
-		Cbuf_AddText(va("devmap %s\ndelay %d %s\n", s, Cvar_VariableIntegerValue("g_warmup") * 1000, Cmd_Cmd()));
+        // Change to the right map and start the demo with a g_warmup second delay
+        Cbuf_AddText(va("devmap %s\ndelay %d %s\n", s, Cvar_VariableIntegerValue("g_warmup") * 1000, Cmd_Cmd()));
         SV_DemoStopPlayback();
         return;
     }
@@ -434,8 +434,8 @@ void SV_DemoStopPlayback(void)
 	Com_Printf("Stopped playing demo %s.\n", sv.demoName);
 
 	// restore maxclients and democlients
-	Cvar_SetValue("sv_maxclients", savedMaxClients);
-	Cvar_SetValue("sv_democlients", savedDemoClients);
+    Cvar_SetValue("sv_maxclients", savedMaxClients);
+    Cvar_SetValue("sv_democlients", savedDemoClients);
 
 	// demo hasn't actually started yet
 	if (sv.demoState != DS_PLAYBACK)

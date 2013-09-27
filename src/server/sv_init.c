@@ -244,7 +244,7 @@ void SV_ChangeMaxClients( void ) {
 	int		i, j;
 	client_t	*oldClients = NULL;
 	int		count = 0;
-        qboolean firstTime = svs.clients == NULL;
+    qboolean firstTime = svs.clients == NULL;
 
 	if ( !firstTime ) {
 		// get the number of clients in use
@@ -256,17 +256,21 @@ void SV_ChangeMaxClients( void ) {
 	}
 
 	oldMaxClients = sv_maxclients->integer;
+
 	// update the cvars
-        Cvar_Get( "sv_maxclients", "8", 0 );
-        Cvar_Get( "sv_democlients", "0", 0 );
+    Cvar_Get( "sv_maxclients", "8", 0 );
+    Cvar_Get( "sv_democlients", "0", 0 );
+
 	// make sure we have enough room for all clients
 	if ( sv_democlients->integer + count > MAX_CLIENTS )
 		Cvar_SetValue( "sv_democlients", MAX_CLIENTS - count );
 	if ( sv_maxclients->integer < sv_democlients->integer + count ) {
 		Cvar_SetValue( "sv_maxclients", sv_democlients->integer + count );
 	}
-	sv_maxclients->modified = qfalse;
-	sv_democlients->modified = qfalse;
+
+    sv_maxclients->modified = qfalse;
+    sv_democlients->modified = qfalse;
+
 	// if still the same
 	if ( !firstTime && sv_maxclients->integer == oldMaxClients ) {
 		// move people who are below sv_democlients up
@@ -599,7 +603,7 @@ void SV_Init (void) {
 	sv_privateClients = Cvar_Get ("sv_privateClients", "0", CVAR_SERVERINFO);
 	sv_hostname = Cvar_Get ("sv_hostname", "noname", CVAR_SERVERINFO | CVAR_ARCHIVE );
 	sv_maxclients = Cvar_Get ("sv_maxclients", "8", CVAR_SERVERINFO | CVAR_LATCH);
-	sv_democlients = Cvar_Get ("sv_democlients", "0", CVAR_SERVERINFO | CVAR_LATCH | CVAR_ARCHIVE);
+    sv_democlients = Cvar_Get ("sv_democlients", "0", CVAR_SERVERINFO | CVAR_LATCH );
 
 	sv_minRate = Cvar_Get ("sv_minRate", "0", CVAR_ARCHIVE | CVAR_SERVERINFO );
 	sv_maxRate = Cvar_Get ("sv_maxRate", "0", CVAR_ARCHIVE | CVAR_SERVERINFO );
@@ -645,7 +649,7 @@ void SV_Init (void) {
 	sv_dequeuePeriod = Cvar_Get ("sv_dequeuePeriod", "500", CVAR_ARCHIVE );
 	sv_demoState = Cvar_Get ("sv_demoState", "0", CVAR_ROM );
 	sv_autoDemo = Cvar_Get ("sv_autoDemo", "0", CVAR_ARCHIVE );
-        sv_GeoIPDatabase = Cvar_Get( "sv_GeoIPDatabase", "GeoIP.dat", CVAR_ARCHIVE );
+    sv_GeoIPDatabase = Cvar_Get( "sv_GeoIPDatabase", "GeoIP.dat", CVAR_ARCHIVE );
 }
 
 
