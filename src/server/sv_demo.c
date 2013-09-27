@@ -434,8 +434,8 @@ void SV_DemoStopPlayback(void)
 	Com_Printf("Stopped playing demo %s.\n", sv.demoName);
 
 	// restore maxclients and democlients
-    Cvar_SetValue("sv_maxclients", savedMaxClients);
-    Cvar_SetValue("sv_democlients", savedDemoClients);
+    //Cvar_SetValue("sv_maxclients", savedMaxClients);
+    //Cvar_SetValue("sv_democlients", savedDemoClients);
 
 	// demo hasn't actually started yet
 	if (sv.demoState != DS_PLAYBACK)
