@@ -405,7 +405,7 @@ void CON_Print( const char *msg )
 	if( ttycon_on && com_ansiColor && com_ansiColor->integer )
 		Sys_AnsiColorPrint( msg );
 	else
-		puts( msg );
+        fputs( msg, stderr );
 
 	CON_Show( );
 }

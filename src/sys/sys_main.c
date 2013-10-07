@@ -230,14 +230,14 @@ void Sys_AnsiColorPrint( const char *msg )
 			if( length > 0 )
 			{
 				buffer[ length ] = '\0';
-				puts( buffer );
+                fputs( buffer, stderr );
 				length = 0;
 			}
 
 			if( *msg == '\n' )
 			{
 				// Issue a reset and then the newline
-				puts( "\033[0m\n" );
+                fputs( "\033[0m\n", stderr );
 				msg++;
 			}
 			else
@@ -245,7 +245,7 @@ void Sys_AnsiColorPrint( const char *msg )
 				// Print the color code
 				Com_sprintf( buffer, sizeof( buffer ), "\033[%dm",
 						q3ToAnsi[ ColorIndex( *( msg + 1 ) ) ] );
-				puts( buffer );
+                fputs( buffer, stderr );
 				msg += 2;
 			}
 		}
@@ -264,7 +264,7 @@ void Sys_AnsiColorPrint( const char *msg )
 	if( length > 0 )
 	{
 		buffer[ length ] = '\0';
-		puts( buffer );
+        fputs( buffer, stderr );
 	}
 }
 
